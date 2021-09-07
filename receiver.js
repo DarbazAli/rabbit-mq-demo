@@ -1,3 +1,6 @@
+"use strict"
+console.clear()
+
 import amqp from "amqplib/callback_api.js"
 
 // connect to rabitMQ server
@@ -8,23 +11,24 @@ amqp.connect("amqp://localhost", (error0, connection) => {
     connection.createChannel((error1, channel) => {
         if (error1) throw error1
 
-        const queue = "hello"
+        const queue = "task_queue"
 
         channel.assertQueue(queue, {
             durable: false,
         })
 
-        console.log(
-            ` [*] waiting for messages in ${queue}, precc CTRL + C to exit`
-        )
-
         channel.consume(
             queue,
             (msg) => {
-                console.log(` [x] Received ${msg.content.toString()}`)
+                const secs = msg.content.toString().split(".").length - 1
+
+                setTimeout(() => {
+                    console.log(` ${msg.content.toString()} Done`)
+                    channel.ack(msg)
+                }, secs * 1000)
             },
             {
-                noAck: true,
+                noAck: false,
             }
         )
     })

@@ -12,15 +12,15 @@ amqp.connect("amqp://localhost", (error0, connection) => {
     connection.createChannel((error1, channel) => {
         if (error1) throw error1
 
-        const queue = "hello"
-        const message = "Hello World"
+        const queue = "task_queue"
+        const msg = process.argv.slice(2).join(" ") || "Hello World"
 
         channel.assertQueue(queue, {
             durable: false,
         })
 
-        channel.sendToQueue(queue, Buffer.from(message))
-        console.log(` [x] Sent ${message}`)
+        channel.sendToQueue(queue, Buffer.from(msg))
+        console.log(` [x] Sent ${msg}`)
     })
 
     // close the connection
