@@ -1,0 +1,11 @@
+{
+  "name": "rabit-mq-demo",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "author": "Darbaz Ali",
+  "license": "MIT",
+  "dependencies": {
+    "amqplib": "^0.8.0"
+  }
+}
