@@ -1,31 +1,35 @@
 "use strict"
 console.clear()
 
-// import the library
-import amqp from "amqplib/callback_api.js"
+import amqp from "amqplib"
 
-// connect to RabbitMQ Server
-amqp.connect("amqp://localhost", (error0, connection) => {
-    if (error0) throw error0
+const sender = async () => {
+    try {
+        const connect = await amqp.connect("amqp://localhost")
 
-    // Next we create a channel, which is where most of the API for getting things done resides:
-    connection.createChannel((error1, channel) => {
-        if (error1) throw error1
+        const channel = await connect.createChannel()
 
+        // initial queue
         const queue = "task_queue"
+
+        // grab the messages from env arguments
         const msg = process.argv.slice(2).join(" ") || "Hello World"
 
-        channel.assertQueue(queue, {
+        await channel.assertQueue(queue, {
             durable: false,
         })
 
         channel.sendToQueue(queue, Buffer.from(msg))
         console.log(` [x] Sent ${msg}`)
-    })
 
-    // close the connection
-    setTimeout(() => {
-        connection.close()
-        process.exit(0)
-    }, 500)
-})
+        // close the connection after 500ms
+        setTimeout(() => {
+            connect.close()
+            process.exit(0)
+        }, 500)
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+sender()

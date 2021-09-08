@@ -1,23 +1,20 @@
 "use strict"
 console.clear()
 
-import amqp from "amqplib/callback_api.js"
+import amqp from "amqplib"
 
-// connect to rabitMQ server
-amqp.connect("amqp://localhost", (error0, connection) => {
-    if (error0) throw error0
-
-    // create a channel
-    connection.createChannel((error1, channel) => {
-        if (error1) throw error1
+const consumer = async () => {
+    try {
+        const connection = await amqp.connect("amqp://localhost")
+        const channel = await connection.createChannel()
 
         const queue = "task_queue"
 
-        channel.assertQueue(queue, {
+        await channel.assertQueue(queue, {
             durable: false,
         })
 
-        channel.consume(
+        await channel.consume(
             queue,
             (msg) => {
                 const secs = msg.content.toString().split(".").length - 1
@@ -31,5 +28,9 @@ amqp.connect("amqp://localhost", (error0, connection) => {
                 noAck: false,
             }
         )
-    })
-})
+    } catch (error) {
+        console.warn(error)
+    }
+}
+
+consumer()
